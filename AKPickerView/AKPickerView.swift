@@ -59,6 +59,12 @@ private class AKCollectionViewCell: UICollectionViewCell {
 	var imageView: UIImageView!
 	var font = UIFont.systemFont(ofSize: UIFont.systemFontSize)
 	var highlightedFont = UIFont.systemFont(ofSize: UIFont.systemFontSize)
+    var attributedText: NSAttributedString? {
+        didSet {
+            self.label.attributedText = attributedText
+        }
+    }
+
 	var _selected: Bool = false {
 		didSet(selected) {
 			let animation = CATransition()
@@ -66,6 +72,7 @@ private class AKCollectionViewCell: UICollectionViewCell {
 			animation.duration = 0.15
 			self.label.layer.add(animation, forKey: "")
 			self.label.font = self.isSelected ? self.highlightedFont : self.font
+            self.label.attributedText = attributedText
 		}
 	}
 
@@ -237,6 +244,10 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 			self.intercepter.delegate = delegate
 		}
 	}
+    
+    /// Readwrite. Kerning for all cells.
+    public lazy var kerning = 1.0
+    
 	/// Readwrite. A font which used in NOT selected cells.
 	public lazy var font = UIFont.systemFont(ofSize: 20)
 
@@ -373,8 +384,8 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	:returns: A CGSize which contains given string just.
 	*/
 	fileprivate func sizeForString(_ string: NSString) -> CGSize {
-		let size = string.size(attributes: [NSFontAttributeName: self.font])
-		let highlightedSize = string.size(attributes: [NSFontAttributeName: self.highlightedFont])
+		let size = string.size(attributes: [NSFontAttributeName: self.font, NSKernAttributeName: self.kerning])
+		let highlightedSize = string.size(attributes: [NSFontAttributeName: self.highlightedFont, NSKernAttributeName: self.kerning])
 		return CGSize(
 			width: ceil(max(size.width, highlightedSize.width)),
 			height: ceil(max(size.height, highlightedSize.height)))
@@ -524,6 +535,12 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 			cell.label.font = self.font
 			cell.font = self.font
 			cell.highlightedFont = self.highlightedFont
+
+            let mutableAttributedText = NSMutableAttributedString(string: title)
+            let textRange = NSMakeRange(0, mutableAttributedText.length)
+            mutableAttributedText.addAttribute(NSKernAttributeName, value: kerning, range: textRange)
+            cell.attributedText = mutableAttributedText
+
 			cell.label.bounds = CGRect(origin: CGPoint.zero, size: self.sizeForString(title as NSString))
 			if let delegate = self.delegate {
 				delegate.pickerView?(self, configureLabel: cell.label, forItem: indexPath.item)
