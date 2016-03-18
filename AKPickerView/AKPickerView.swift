@@ -39,6 +39,7 @@ and customize the appearance of labels.
 	@objc optional func pickerView(_ pickerView: AKPickerView, didSelectItem item: Int)
 	@objc optional func pickerView(_ pickerView: AKPickerView, marginForItem item: Int) -> CGSize
 	@objc optional func pickerView(_ pickerView: AKPickerView, configureLabel label: UILabel, forItem item: Int)
+    @objc optional func pickerView(pickerView: AKPickerView, willScrollToItem:Int)
 }
 
 // MARK: - Private Classes and Protocols
@@ -592,6 +593,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	// MARK: UICollectionViewDelegate
 	public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		self.selectItem(indexPath.item, animated: true)
+        delegate?.pickerView?(self, willScrollToItem: indexPath.item)
 	}
 
 	// MARK: UIScrollViewDelegate
@@ -623,6 +625,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
             guard let indexPath = self.collectionView.indexPathForItemAtPoint(newCollectionViewCenter),
                 let cell = collectionView.cellForItemAtIndexPath(indexPath) else { return }
             
+            delegate?.pickerView?(self, willScrollToItem: indexPath.item)
             let cellCenter = cell.center
             let newOffset = CGPointMake(cellCenter.x - CGRectGetWidth(collectionView.frame) / 2.0, 0.0)
             targetContentOffset.memory = newOffset
