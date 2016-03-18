@@ -230,9 +230,9 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	// MARK: - Properties
 	// MARK: Readwrite Properties
 	/// Readwrite. Data source of picker view.
-	public weak var dataSource: AKPickerViewDataSource? = nil
+	@IBOutlet public weak var dataSource: AKPickerViewDataSource? = nil
 	/// Readwrite. Delegate of picker view.
-	public weak var delegate: AKPickerViewDelegate? = nil {
+	@IBOutlet public weak var delegate: AKPickerViewDelegate? = nil {
 		didSet(delegate) {
 			self.intercepter.delegate = delegate
 		}
@@ -597,6 +597,19 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 		self.collectionView.layer.mask?.frame = self.collectionView.bounds
 		CATransaction.commit()
 	}
+    
+    public func scrollViewWillEndDragging(scrollView: UIScrollView,
+        withVelocity velocity: CGPoint,
+        targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+            let newCollectionViewCenter = CGPointMake(targetContentOffset.memory.x + CGRectGetWidth(collectionView.frame) / 2.0, targetContentOffset.memory.y)
+            
+            guard let indexPath = self.collectionView.indexPathForItemAtPoint(newCollectionViewCenter),
+                let cell = collectionView.cellForItemAtIndexPath(indexPath) else { return }
+            
+            let cellCenter = cell.center
+            let newOffset = CGPointMake(cellCenter.x - CGRectGetWidth(collectionView.frame) / 2.0, 0.0)
+            targetContentOffset.memory = newOffset
+    }
 
 	// MARK: AKCollectionViewLayoutDelegate
 	fileprivate func pickerViewStyleForCollectionViewLayout(_ layout: AKCollectionViewLayout) -> AKPickerViewStyle {
