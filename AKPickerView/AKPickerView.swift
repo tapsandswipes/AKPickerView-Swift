@@ -267,6 +267,16 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	/// Readwrite. The style of the picker view. See AKPickerViewStyle.
 	public var pickerViewStyle = AKPickerViewStyle.wheel
 
+    /// Readwrite. The scroll direction of the picker view.
+    /// Note vertical isn't implemented for 'wheel' style picker yet.
+    public var pickerScrollDirection = UICollectionViewScrollDirection.horizontal {
+        didSet {
+            collectionViewLayout.scrollDirection = pickerScrollDirection
+            collectionViewLayout.invalidateLayout()
+        }
+    }
+
+
 	/// Readwrite. A float value which determines the perspective representation which used when using AKPickerViewStyle.Wheel style.
 	@IBInspectable public var viewDepth: CGFloat = 1000.0 {
 		didSet {
@@ -312,11 +322,11 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	/// Private. An intercepter to hook UICollectionViewDelegate then throw it picker view and its delegate
 	fileprivate var intercepter: AKPickerViewDelegateIntercepter!
 	/// Private. A UICollectionViewFlowLayout used in picker view's collection view.
-	fileprivate var collectionViewLayout: AKCollectionViewLayout {
+	fileprivate lazy var collectionViewLayout: AKCollectionViewLayout = {
 		let layout = AKCollectionViewLayout()
 		layout.delegate = self
 		return layout
-	}
+	}()
 
 	// MARK: - Functions
 	// MARK: View Lifecycle
@@ -406,7 +416,12 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 				self.collectionView,
 				layout: self.collectionView.collectionViewLayout,
 				sizeForItemAt: indexPath)
-			offset += cellSize.width
+            if collectionViewLayout.scrollDirection == .horizontal {
+                offset += cellSize.width
+            }
+            else {
+                offset += cellSize.height
+            }
 		}
 
 		let firstIndexPath = IndexPath(item: 0, section: 0)
@@ -419,7 +434,12 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 			self.collectionView,
 			layout: self.collectionView.collectionViewLayout,
 			sizeForItemAt: selectedIndexPath)
-		offset -= (firstSize.width - selectedSize.width) / 2.0
+        if collectionViewLayout.scrollDirection == .Horizontal {
+            offset -= (firstSize.width - selectedSize.width) / 2.0
+        }
+        else {
+            offset -= (firstSize.height - selectedSize.height) / 2.0
+        }
 
 		return offset
 	}
@@ -446,11 +466,18 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	public func scrollToItem(_ item: Int, animated: Bool = false) {
 		switch self.pickerViewStyle {
 		case .flat:
+            let scrollPosition: UICollectionViewScrollPosition
+            if collectionViewLayout.scrollDirection == .Horizontal {
+                scrollPosition = .CenteredHorizontally
+            }
+            else {
+                scrollPosition = .CenteredVertically
+            }
 			self.collectionView.scrollToItem(
 				at: IndexPath(
 					item: item,
 					section: 0),
-				at: .centeredHorizontally,
+				at: scrollPosition,
 				animated: animated)
 		case .wheel:
 			self.collectionView.setContentOffset(
@@ -559,20 +586,38 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	// MARK: UICollectionViewDelegateFlowLayout
 	public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
 
-        var maxHeight = CGRectGetHeight(collectionView.frame) - collectionView.contentInset.top - collectionView.contentInset.bottom
-        guard let flowLayout = collectionViewLayout as? UICollectionViewFlowLayout  else { return CGSizeZero }
-        maxHeight = maxHeight - flowLayout.sectionInset.top - flowLayout.sectionInset.bottom
+        if self.collectionViewLayout.scrollDirection == .horizontal {
+            var maxHeight = CGRectGetHeight(collectionView.frame) - collectionView.contentInset.top - collectionView.contentInset.bottom
+            guard let flowLayout = collectionViewLayout as? UICollectionViewFlowLayout  else { return CGSizeZero }
+            maxHeight = maxHeight - flowLayout.sectionInset.top - flowLayout.sectionInset.bottom
 
-		var size = CGSize(width: self.interitemSpacing, height: collectionView.bounds.size.height)
-		if let title = self.dataSource?.pickerView?(self, titleForItem: indexPath.item) {
-			size.width += self.sizeForString(title as NSString).width
-			if let margin = self.delegate?.pickerView?(self, marginForItem: indexPath.item) {
-				size.width += margin.width * 2
-			}
-		} else if let image = self.dataSource?.pickerView?(self, imageForItem: indexPath.item) {
-			size.width += image.size.width
-		}
-		return size
+            var size = CGSize(width: self.interitemSpacing, height: collectionView.bounds.size.height)
+            if let title = self.dataSource?.pickerView?(self, titleForItem: indexPath.item) {
+                size.width += self.sizeForString(title as NSString).width
+                if let margin = self.delegate?.pickerView?(self, marginForItem: indexPath.item) {
+                    size.width += margin.width * 2
+                }
+            } else if let image = self.dataSource?.pickerView?(self, imageForItem: indexPath.item) {
+                size.width += image.size.width
+            }
+            return size
+        }
+        else {
+            var maxWidth = CGRectGetWidth(collectionView.frame) - collectionView.contentInset.left - collectionView.contentInset.right
+            guard let flowLayout = collectionViewLayout as? UICollectionViewFlowLayout  else { return CGSizeZero }
+            maxWidth = maxWidth - flowLayout.sectionInset.left - flowLayout.sectionInset.right
+            
+            var size = CGSize(width: maxWidth, height: self.interitemSpacing)
+            if let title = self.dataSource?.pickerView?(self, titleForItem: indexPath.item) {
+                size.height += self.sizeForString(title as NSString).height
+                if let margin = self.delegate?.pickerView?(self, marginForItem: indexPath.item) {
+                    size.height += margin.height * 2
+                }
+            } else if let image = self.dataSource?.pickerView?(self, imageForItem: indexPath.item) {
+                size.height += image.size.height
+            }
+            return size
+        }
 	}
 
 	public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
@@ -589,10 +634,17 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 		let firstSize = self.collectionView(collectionView, layout: collectionView.collectionViewLayout, sizeForItemAt: firstIndexPath)
 		let lastIndexPath = IndexPath(item: number - 1, section: section)
 		let lastSize = self.collectionView(collectionView, layout: collectionView.collectionViewLayout, sizeForItemAt: lastIndexPath)
-		return UIEdgeInsetsMake(
-			0, (collectionView.bounds.size.width - firstSize.width) / 2,
-			0, (collectionView.bounds.size.width - lastSize.width) / 2
-		)
+
+        if self.collectionViewLayout.scrollDirection == .horizontal {
+            return UIEdgeInsetsMake(
+                0, (collectionView.bounds.size.width - firstSize.width) / 2,
+                0, (collectionView.bounds.size.width - lastSize.width) / 2
+            )
+        }
+        else {
+            return UIEdgeInsetsMake((collectionView.bounds.size.height - firstSize.height) / 2, 0,
+                                    (collectionView.bounds.size.height - lastSize.height) / 2, 0)
+        }
 	}
 
 	// MARK: UICollectionViewDelegate
@@ -625,6 +677,8 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
     public func scrollViewWillEndDragging(scrollView: UIScrollView,
         withVelocity velocity: CGPoint,
         targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        
+        if collectionViewLayout.scrollDirection == .horizontal {
             let newCollectionViewCenter = CGPointMake(targetContentOffset.memory.x + CGRectGetWidth(collectionView.frame) / 2.0, targetContentOffset.memory.y)
             
             guard let indexPath = self.collectionView.indexPathForItemAtPoint(newCollectionViewCenter),
@@ -634,6 +688,20 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
             let cellCenter = cell.center
             let newOffset = CGPointMake(cellCenter.x - CGRectGetWidth(collectionView.frame) / 2.0, 0.0)
             targetContentOffset.memory = newOffset
+        }
+        else {
+            let newCollectionViewCenter = CGPointMake(targetContentOffset.memory.x + CGRectGetWidth(collectionView.frame) / 2.0,
+                                                      targetContentOffset.memory.y + CGRectGetHeight(collectionView.frame))
+            
+            guard let indexPath = self.collectionView.indexPathForItemAtPoint(newCollectionViewCenter),
+                let cell = collectionView.cellForItemAtIndexPath(indexPath) else { return }
+            
+            delegate?.pickerView?(self, willScrollToItem: indexPath.item)
+            let cellCenter = cell.center
+            let newOffset = CGPointMake(cellCenter.x - CGRectGetWidth(collectionView.frame) / 2.0,
+                                        cellCenter.y - CGRectGetHeight(collectionView.frame) / 2.0)
+            targetContentOffset.memory = newOffset
+        }
     }
 
 	// MARK: AKCollectionViewLayoutDelegate
