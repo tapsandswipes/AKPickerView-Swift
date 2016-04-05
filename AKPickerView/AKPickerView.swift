@@ -691,7 +691,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
         }
         else {
             let newCollectionViewCenter = CGPointMake(targetContentOffset.memory.x + CGRectGetWidth(collectionView.frame) / 2.0,
-                                                      targetContentOffset.memory.y + CGRectGetHeight(collectionView.frame))
+                                                      targetContentOffset.memory.y + CGRectGetHeight(collectionView.frame) / 2.0)
             
             guard let indexPath = self.collectionView.indexPathForItemAtPoint(newCollectionViewCenter),
                 let cell = collectionView.cellForItemAtIndexPath(indexPath) else { return }
