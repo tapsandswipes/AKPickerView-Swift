@@ -377,6 +377,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 		super.layoutSubviews()
 		if self.dataSource != nil && self.dataSource!.numberOfItemsInPickerView(self) > 0 {
 			self.collectionView.collectionViewLayout = self.collectionViewLayout
+            self.collectionView.collectionViewLayout.invalidateLayout()
 			self.scrollToItem(self.selectedItem, animated: false)
 		}
 		self.collectionView.layer.mask?.frame = self.collectionView.bounds
