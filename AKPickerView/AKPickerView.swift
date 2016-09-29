@@ -174,22 +174,21 @@ private class AKCollectionViewLayout: UICollectionViewFlowLayout {
 		return nil
 	}
 
-	private func layoutAttributesForElementsInRect(_ rect: CGRect) -> [AnyObject]? {
-		switch self.delegate.pickerViewStyleForCollectionViewLayout(self) {
-		case .flat:
-			return super.layoutAttributesForElements(in: rect)
-		case .wheel:
-			var attributes = [AnyObject]()
-			if self.collectionView!.numberOfSections > 0 {
-				for i in 0 ..< self.collectionView!.numberOfItems(inSection: 0) {
-					let indexPath = IndexPath(item: i, section: 0)
-					attributes.append(self.layoutAttributesForItem(at: indexPath)!)
-				}
-			}
-			return attributes
-		}
-	}
-
+    private override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        switch self.delegate.pickerViewStyleForCollectionViewLayout(self) {
+        case .Flat:
+            return super.layoutAttributesForElementsInRect(rect)
+        case .Wheel:
+            var attributes = [UICollectionViewLayoutAttributes]()
+            if self.collectionView!.numberOfSections() > 0 {
+                for i in 0 ..< self.collectionView!.numberOfItems(inSection: 0) {
+                    let indexPath = IndexPath(item: i, section: 0)
+                    attributes.append(self.layoutAttributesForItem(at: indexPath)!)
+                }
+            }
+            return attributes
+        }
+    }
 }
 
 // MARK: AKPickerViewDelegateIntercepter
