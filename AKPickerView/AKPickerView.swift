@@ -59,15 +59,15 @@ private class AKCollectionViewCell: UICollectionViewCell {
 	var imageView: UIImageView!
 	var font = UIFont.systemFont(ofSize: UIFont.systemFontSize)
 	var highlightedFont = UIFont.systemFont(ofSize: UIFont.systemFontSize)
-	var _selected: Bool = false {
-		didSet(selected) {
+	override var isSelected: Bool {
+        didSet {
 			let animation = CATransition()
 			animation.type = kCATransitionFade
 			animation.duration = 0.15
 			self.label.layer.add(animation, forKey: "")
-			self.label.font = self.isSelected ? self.highlightedFont : self.font
-		}
-	}
+			self.label.font = isSelected ? self.highlightedFont : self.font
+        }
+    }
 
 	func initialize() {
 		self.layer.isDoubleSided = false
@@ -534,7 +534,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 		} else if let image = self.dataSource?.pickerView?(self, imageForItem: indexPath.item) {
 			cell.imageView.image = image
 		}
-		cell._selected = (indexPath.item == self.selectedItem)
+		cell.isSelected = (indexPath.item == self.selectedItem)
 		return cell
 	}
 
