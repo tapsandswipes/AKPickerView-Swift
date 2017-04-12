@@ -68,11 +68,12 @@ private class AKCollectionViewCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            let animation = CATransition()
-            animation.type = kCATransitionFade
-            animation.duration = 0.15
-            self.label.layer.add(animation, forKey: "")
+            //            let animation = CATransition()
+            //            animation.type = kCATransitionFade
+            //            animation.duration = 0.15
+            //            self.label.layer.add(animation, forKey: "")
             self.label.font = isSelected ? highlightedFont : font
+            self.label.isHighlighted = isSelected
         }
     }
     
@@ -586,7 +587,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
         } else if let image = self.dataSource?.pickerView?(self, imageForItem: indexPath.item) {
             cell.imageView.image = image
         }
-        //cell.isSelected = (indexPath.item == self.selectedItem)
+        cell.isSelected = (indexPath.item == self.selectedItem)
         return cell
     }
     
