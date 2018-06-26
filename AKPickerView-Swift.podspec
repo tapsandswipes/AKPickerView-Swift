@@ -20,5 +20,6 @@ Pod::Spec.new do |s|
     s.source_files = 'AKPickerView/AKPickerView.swift'
     
     s.requires_arc = true
+    s.swift_version = 4.0
     
 end
