@@ -8,12 +8,12 @@ Pod::Spec.new do |s|
 
     s.license = 'MIT'
 
-    s.homepage = 'https://github.com/Akkyie/AKPickerView-Swift'
+    s.homepage = 'https://github.com/tapsandswipes/AKPickerView-Swift'
 
     s.authors            = { "Akkyie Y" => "akio@prioris.org" }
-    s.social_media_url   = "http://twitter.com/akkyie"
+    s.social_media_url   = "http://twitter.com/acvivo"
 
-    s.source = { :git => 'https://github.com/Akkyie/AKPickerView-Swift.git', :tag => s.version }
+    s.source = { :git => 'https://github.com/tapsandswipes/AKPickerView-Swift.git', :tag => s.version }
 
     s.ios.deployment_target = '8.0'
 
