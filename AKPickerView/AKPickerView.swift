@@ -287,7 +287,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
         }
     }
     /// Readwrite. A boolean value indicates whether the mask is disabled.
-    @IBInspectable public var maskDisabled: Bool! = nil {
+    public var maskDisabled: Bool! = nil {
         didSet {
             self.collectionView.layer.mask = self.maskDisabled == true ? nil : {
                 let maskLayer = CAGradientLayer()
@@ -401,8 +401,8 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
      :returns: A CGSize which contains given string just.
      */
     fileprivate func sizeForString(_ string: NSString) -> CGSize {
-        let size = string.size(attributes: [NSFontAttributeName: self.font, NSKernAttributeName: self.kerning])
-        let highlightedSize = string.size(attributes: [NSFontAttributeName: self.highlightedFont, NSKernAttributeName: self.kerning])
+        let size = string.size(withAttributes: [NSAttributedStringKey.font: self.font, NSAttributedStringKey.kern: self.kerning])
+        let highlightedSize = string.size(withAttributes: [NSAttributedStringKey.font: self.highlightedFont, NSAttributedStringKey.kern: self.kerning])
         return CGSize(
             width: ceil(max(size.width, highlightedSize.width)),
             height: ceil(max(size.height, highlightedSize.height)))
@@ -574,7 +574,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
             
             let mutableAttributedText = NSMutableAttributedString(string: title)
             let textRange = NSMakeRange(0, mutableAttributedText.length)
-            mutableAttributedText.addAttribute(NSKernAttributeName, value: kerning, range: textRange)
+            mutableAttributedText.addAttribute(NSAttributedStringKey.kern, value: kerning, range: textRange)
             cell.attributedText = mutableAttributedText
             
             cell.label.bounds = CGRect(origin: CGPoint.zero, size: self.sizeForString(title as NSString))
