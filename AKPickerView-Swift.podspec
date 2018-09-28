@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
     s.name = 'AKPickerView-Swift'
-    s.version = '2.0.2'
+    s.version = '2.0.3'
     s.summary = 'A simple yet customizable horizontal picker view.'
 
     s.description  = 'A simple yet customizable horizontal picker view. Works on iOS 8'
@@ -20,6 +20,6 @@ Pod::Spec.new do |s|
     s.source_files = 'AKPickerView/AKPickerView.swift'
     
     s.requires_arc = true
-    s.swift_version = '4.0'
+    s.swift_version = '4.2'
     
 end

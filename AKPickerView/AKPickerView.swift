@@ -128,7 +128,7 @@ private class AKCollectionViewLayout: UICollectionViewFlowLayout {
     var maxAngle: CGFloat!
     
     func initialize() {
-        self.sectionInset = UIEdgeInsetsMake(0.0, 0.0, 0.0, 0.0)
+        self.sectionInset = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0)
         self.scrollDirection = .horizontal
         self.minimumLineSpacing = 0.0
     }
@@ -269,7 +269,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
     
     /// Readwrite. The scroll direction of the picker view.
     /// Note vertical isn't implemented for 'wheel' style picker yet.
-    public var pickerScrollDirection = UICollectionViewScrollDirection.horizontal {
+    public var pickerScrollDirection = UICollectionView.ScrollDirection.horizontal {
         didSet {
             collectionViewLayout.scrollDirection = pickerScrollDirection
             collectionViewLayout.invalidateLayout()
@@ -343,8 +343,8 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
         self.collectionView = UICollectionView(frame: self.bounds, collectionViewLayout: self.collectionViewLayout)
         self.collectionView.showsHorizontalScrollIndicator = false
         self.collectionView.backgroundColor = UIColor.clear
-        self.collectionView.decelerationRate = UIScrollViewDecelerationRateFast
-        self.collectionView.autoresizingMask = [UIViewAutoresizing.flexibleWidth, UIViewAutoresizing.flexibleHeight]
+        self.collectionView.decelerationRate = UIScrollView.DecelerationRate.fast
+        self.collectionView.autoresizingMask = [UIView.AutoresizingMask.flexibleWidth, UIView.AutoresizingMask.flexibleHeight]
         self.collectionView.dataSource = self
         self.collectionView.register(
             AKCollectionViewCell.self,
@@ -389,7 +389,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
     }
     
     open override var intrinsicContentSize : CGSize {
-        return CGSize(width: UIViewNoIntrinsicMetric, height: max(self.font.lineHeight, self.highlightedFont.lineHeight))
+        return CGSize(width: UIView.noIntrinsicMetric, height: max(self.font.lineHeight, self.highlightedFont.lineHeight))
     }
     
     // MARK: Calculation Functions
@@ -401,8 +401,8 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
      :returns: A CGSize which contains given string just.
      */
     fileprivate func sizeForString(_ string: NSString) -> CGSize {
-        let size = string.size(withAttributes: [NSAttributedStringKey.font: self.font, NSAttributedStringKey.kern: self.kerning])
-        let highlightedSize = string.size(withAttributes: [NSAttributedStringKey.font: self.highlightedFont, NSAttributedStringKey.kern: self.kerning])
+        let size = string.size(withAttributes: [NSAttributedString.Key.font: self.font, NSAttributedString.Key.kern: self.kerning])
+        let highlightedSize = string.size(withAttributes: [NSAttributedString.Key.font: self.highlightedFont, NSAttributedString.Key.kern: self.kerning])
         return CGSize(
             width: ceil(max(size.width, highlightedSize.width)),
             height: ceil(max(size.height, highlightedSize.height)))
@@ -472,7 +472,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
     public func scrollToItem(_ item: Int, animated: Bool = false) {
         switch self.pickerViewStyle {
         case .flat:
-            let scrollPosition: UICollectionViewScrollPosition
+            let scrollPosition: UICollectionView.ScrollPosition
             if collectionViewLayout.scrollDirection == .horizontal {
                 scrollPosition = .centeredHorizontally
             }
@@ -517,7 +517,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
         self.collectionView.selectItem(
             at: IndexPath(item: item, section: 0),
             animated: animated,
-            scrollPosition: UICollectionViewScrollPosition())
+            scrollPosition: UICollectionView.ScrollPosition())
         self.scrollToItem(item, animated: animated)
         self.selectedItem = item
         if notifySelection {
@@ -574,7 +574,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
             
             let mutableAttributedText = NSMutableAttributedString(string: title)
             let textRange = NSMakeRange(0, mutableAttributedText.length)
-            mutableAttributedText.addAttribute(NSAttributedStringKey.kern, value: kerning, range: textRange)
+            mutableAttributedText.addAttribute(NSAttributedString.Key.kern, value: kerning, range: textRange)
             cell.attributedText = mutableAttributedText
             
             cell.label.bounds = CGRect(origin: CGPoint.zero, size: self.sizeForString(title as NSString))
@@ -644,14 +644,14 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
         let lastSize = self.collectionView(collectionView, layout: collectionView.collectionViewLayout, sizeForItemAt: lastIndexPath)
         
         if self.collectionViewLayout.scrollDirection == .horizontal {
-            return UIEdgeInsetsMake(
-                0, (collectionView.bounds.size.width - firstSize.width) / 2,
-                0, (collectionView.bounds.size.width - lastSize.width) / 2
+            return UIEdgeInsets(
+                top: 0, left: (collectionView.bounds.size.width - firstSize.width) / 2,
+                bottom: 0, right: (collectionView.bounds.size.width - lastSize.width) / 2
             )
         }
         else {
-            return UIEdgeInsetsMake((collectionView.bounds.size.height - firstSize.height) / 2, 0,
-                                    (collectionView.bounds.size.height - lastSize.height) / 2, 0)
+            return UIEdgeInsets(top: (collectionView.bounds.size.height - firstSize.height) / 2, left: 0,
+                                    bottom: (collectionView.bounds.size.height - lastSize.height) / 2, right: 0)
         }
     }
     
